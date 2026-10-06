@@ -1,0 +1,191 @@
+html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physik-Simulation</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+    }
+
+    canvas {
+      background: #1f2937;
+      border: 2px solid white;
+      border-radius: 10px;
+      max-width: 90%;
+    }
+
+    .controls {
+      margin: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #d1d5db;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🏀 Physik-Simulation</h1>
+  <p>Ein Ball fällt unter dem Einfluss der Schwerkraft.</p>
+
+  <canvas id="simulation" width="800" height="500"></canvas>
+
+  <div class="controls">
+    <button id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button id="reset">Zurücksetzen</button>
+  </div>
+
+  <p>
+    Geschwindigkeit: <span id="velocity">0</span> m/s
+  </p>
+
+  <script>
+    const canvas = document.getElementById("simulation");
+    const ctx = canvas.getContext("2d");
+
+    const velocityText = document.getElementById("velocity");
+
+    // Physikalische Werte
+    const gravity = 0.5;
+    const bounce = 0.75;
+
+    // Ball
+    let ball = {
+      x: 400,
+      y: 100,
+      radius: 25,
+      velocityY: 0
+    };
+
+    let running = false;
+
+    function draw() {
+      // Hintergrund
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Boden
+      ctx.fillStyle = "#374151";
+      ctx.fillRect(
+        0,
+        canvas.height - 30,
+        canvas.width,
+        30
+      );
+
+      // Ball
+      ctx.beginPath();
+      ctx.arc(
+        ball.x,
+        ball.y,
+        ball.radius,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fillStyle = "#ef4444";
+      ctx.fill();
+
+      ctx.closePath();
+
+      // Geschwindigkeit anzeigen
+      velocityText.textContent =
+        ball.velocityY.toFixed(2);
+    }
+
+    function update() {
+
+      if (!running) {
+        return;
+      }
+
+      // Schwerkraft
+      ball.velocityY += gravity;
+
+      // Bewegung
+      ball.y += ball.velocityY;
+
+      // Boden erkennen
+      const ground =
+        canvas.height - 30 - ball.radius;
+
+      if (ball.y >= ground) {
+
+        ball.y = ground;
+
+        // Abprallen
+        ball.velocityY *= -bounce;
+
+        // Wenn der Ball fast stillsteht
+        if (Math.abs(ball.velocityY) < 1) {
+          ball.velocityY = 0;
+        }
+      }
+
+      draw();
+
+      requestAnimationFrame(update);
+    }
+
+    document.getElementById("start").addEventListener(
+      "click",
+      () => {
+
+        if (!running) {
+          running = true;
+          update();
+        }
+
+      }
+    );
+
+    document.getElementById("pause").addEventListener(
+      "click",
+      () => {
+        running = false;
+      }
+    );
+
+    document.getElementById("reset").addEventListener(
+      "click",
+      () => {
+
+        running = false;
+
+        ball.x = 400;
+        ball.y = 100;
+        ball.velocityY = 0;
+
+        draw();
+      }
+    );
+
+    // Erste Darstellung
+    draw();
+
+  </script>
+
+</body>
+</html>
